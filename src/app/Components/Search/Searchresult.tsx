@@ -7,6 +7,7 @@ import { Place } from "@/app/types";
 
 interface SearchResultProps {
   place: Place;
+  onClick: () => void;
 }
 
 const categoryIcons = {
@@ -16,11 +17,14 @@ const categoryIcons = {
   viinanjuonti: FaWineBottle,
 } as const;
 
-const SearchResult = ({ place }: SearchResultProps) => {
+const SearchResult = ({ place, onClick }: SearchResultProps) => {
   const categories = Array.isArray(place.category) ? place.category : [];
 
   return (
-    <div className="flex h-40 bg-gray-700 rounded-lg overflow-hidden">
+    <div
+      className="flex bg-gray-700 rounded-lg overflow-hidden mb-4 cursor-pointer hover:scale-105 transition-transform duration-200"
+      onClick={onClick}
+    >
       {/* Left side - Image */}
       <div className="w-1/3 relative">
         <Image
@@ -34,18 +38,17 @@ const SearchResult = ({ place }: SearchResultProps) => {
 
       {/* Right side - Content */}
       <div className="w-2/3 p-4 flex flex-col justify-between">
-        <div>
+        <div className="flex flex-col flex-grow">
           {/* Category icons */}
           {categories.length > 0 && (
-            <div className="flex items-center gap-4 mb-2 flex-wrap">
+            <div className="flex items-center gap-1 mb-2 flex-wrap">
               {categories.map((category, index) => {
                 const IconComponent =
                   categoryIcons[category as keyof typeof categoryIcons];
                 return (
                   <div
                     key={`${category}-${index}`}
-                    className="flex items-center gap-2 border-2 border-gray-500  p-1.5
-                   mb-2"
+                    className="flex items-center gap-2 border-2 border-gray-500 p-1 mb-1"
                   >
                     {IconComponent ? (
                       <IconComponent className="text-md text-blue-400" />
@@ -61,6 +64,7 @@ const SearchResult = ({ place }: SearchResultProps) => {
             </div>
           )}
 
+          {/* Title and Description */}
           <h3 className="text-xl font-bold text-white mb-2">{place.name}</h3>
           <p className="text-sm text-gray-300">
             {place.description ||
@@ -70,7 +74,8 @@ const SearchResult = ({ place }: SearchResultProps) => {
           </p>
         </div>
 
-        <div className="flex items-center gap-1 mt-2">
+        {/* Reviews Section */}
+        <div className="flex items-center gap-1 mt-4">
           {[...Array(5)].map((_, i) => (
             <AiFillStar key={i} className="text-yellow-400" />
           ))}

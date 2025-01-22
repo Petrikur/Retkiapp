@@ -109,7 +109,7 @@ export default function Home() {
           onSearchChange={handleSearchChange}
         />
 
-        <div className="space-y-4">
+        <div className="space-y-4 ">
           {filteredPlaces.map((place) => (
             <SearchResult
               key={place._id}
