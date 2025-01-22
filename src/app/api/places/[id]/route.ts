@@ -1,20 +1,17 @@
-// app/api/places/[id]/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/app/lib/mongodb";
 import Place from "@/app/models/Place";
 import Review from "@/app/models/Review";
 import mongoose from "mongoose";
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
     await connectToDatabase();
-
-    await Review.deleteMany({ placeId: id });
-    const deletedPlace = await Place.findByIdAndDelete(id);
+    await Review.deleteMany({ placeId: params.id });
+    const deletedPlace = await Place.findByIdAndDelete(params.id);
 
     if (!deletedPlace) {
       return NextResponse.json({ error: "Place not found" }, { status: 404 });
@@ -33,17 +30,15 @@ export async function DELETE(
 }
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
     await connectToDatabase();
-
     const place = await Place.aggregate([
       {
         $match: {
-          _id: new mongoose.Types.ObjectId(id),
+          _id: new mongoose.Types.ObjectId(params.id),
         },
       },
       {
