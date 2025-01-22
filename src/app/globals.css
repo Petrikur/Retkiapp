@@ -19,3 +19,49 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+.page-container {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  height: 100vh;
+}
+
+.left-section {
+  padding: 20px;
+  background-color: #f4f4f4;
+  overflow-y: auto;
+}
+
+.right-section {
+  height: 100vh;
+}
+
+.search-bar {
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.search-results ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.search-results li {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+.leaflet-container {
+  z-index: 10;
+}
+
+.modal-overlay {
+  z-index: 1000;
+}
