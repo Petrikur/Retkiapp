@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       description: description,
       category: cleanedCategories,
       position: position,
-      image: "", // Image is removed from data
+      image: "",
     };
 
     const place = await Place.create(data);

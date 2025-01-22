@@ -1,6 +1,6 @@
 // app/lib/places.ts
-import Place from "@/app/models/Place";
 
+import Place from "../models/Place";
 export async function getPlaces() {
   try {
     // Fetch all places without filtering

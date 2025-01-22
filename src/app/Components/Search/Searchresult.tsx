@@ -3,16 +3,10 @@ import { FaCampground, FaHiking, FaFish, FaWineBottle } from "react-icons/fa";
 import { AiFillStar } from "react-icons/ai";
 import Image from "next/image";
 import image from "@/app/images/laavu.jpg";
+import { Place } from "@/app/types";
 
 interface SearchResultProps {
   place: Place;
-}
-
-interface Place {
-  name: string;
-  position: [number, number];
-  category: string[];
-  description?: string;
 }
 
 const categoryIcons = {
@@ -76,11 +70,11 @@ const SearchResult = ({ place }: SearchResultProps) => {
           </p>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 mt-2">
           {[...Array(5)].map((_, i) => (
             <AiFillStar key={i} className="text-yellow-400" />
           ))}
-          <span className="text-sm text-gray-300 ml-2">5.0</span>
+          <span className="text-sm text-gray-300 ml-2">5.0 - (15 ääntä)</span>
         </div>
       </div>
     </div>
