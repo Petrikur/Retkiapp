@@ -19,7 +19,11 @@ export async function createPlace(data: any) {
       description: data.description,
       category: data.category,
       position: data.position,
-      imageUrl: "test", // Assuming you've handled image upload separately
+      imageUrl: "test", // Assuming you've handled image upload separately,
+      city: data.city,
+      country: data.country,
+      address: data.address,
+      zip: data.zip,
     });
 
     await place.save();

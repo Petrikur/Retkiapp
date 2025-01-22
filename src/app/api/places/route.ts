@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       },
       {
         $project: {
-          reviews: 0, // Remove the reviews array from the final output
+          reviews: 0,
         },
       },
     ]);
@@ -44,17 +44,33 @@ export async function GET(request: Request) {
     );
   }
 }
-
 export async function POST(request: Request) {
   try {
     await connectToDatabase();
 
     const formData = await request.json();
-    const { name, description, category, position } = formData;
+    console.log(formData);
+    const {
+      name,
+      description,
+      category,
+      position,
+      city,
+      country,
+      zip,
+      address,
+    } = formData;
 
     if (!name || !position) {
       return NextResponse.json(
         { error: "Name and position are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!address) {
+      return NextResponse.json(
+        { error: "Address is required" },
         { status: 400 }
       );
     }
@@ -69,11 +85,16 @@ export async function POST(request: Request) {
       category: cleanedCategories,
       position,
       image: "",
-      averageRating: 0, // Initialize with 0
-      reviewCount: 0, // Initialize with 0
+      averageRating: 0,
+      reviewCount: 0,
+      city,
+      country,
+      zip,
+      address,
     };
 
     const place = await Place.create(data);
+    console.log("place", place);
     return NextResponse.json(place);
   } catch (error) {
     console.error("Error in POST handler:", error);

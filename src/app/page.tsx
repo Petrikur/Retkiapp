@@ -4,7 +4,7 @@ import Map from "./Components/Map/Map";
 import SearchResult from "./Components/Search/Searchresult";
 import AddPlaceModal from "./Components/Modal/AddPlaceModal";
 import ViewPlaceModal from "./Components/Modal/ViewPlaceModal";
-import SearchBar from "./Components/Search/SearchBar"; // Import the new component
+import SearchBar from "./Components/Search/SearchBar";
 import "leaflet/dist/leaflet.css";
 import { Place } from "./types";
 
@@ -74,6 +74,7 @@ export default function Home() {
       setFilteredPlaces((prevFilteredPlaces) =>
         prevFilteredPlaces.filter((place) => place._id !== placeId)
       );
+      setIsViewModalOpen(false);
     } catch (error) {
       console.error("Error deleting place:", error);
     }

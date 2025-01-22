@@ -17,6 +17,10 @@ const placeSchema = new Schema({
     type: Number,
     default: 0,
   },
+  city: { type: String },
+  country: { type: String },
+  zip: { type: String },
+  address: { type: String },
 });
 
 const Place = models.Place || model("Place", placeSchema);

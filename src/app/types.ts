@@ -5,6 +5,10 @@ export interface Place {
   description?: string;
   category: string[];
   averageRating: number;
+  city: string;
+  country: string;
+  address: string;
+  zip: number;
 }
 
 export interface PlaceFormData {

@@ -1,5 +1,4 @@
-"use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaCampground,
   FaHiking,
@@ -13,7 +12,7 @@ import { BiCompass } from "react-icons/bi";
 import Image from "next/image";
 import { Place } from "@/app/types";
 
-import image from "@/app/images/ruunaa.jpg";
+import image from "@/app/images/laavu2.jpg";
 
 interface Review {
   _id: string;
@@ -29,6 +28,7 @@ interface ViewModalProps {
   onDelete: (placeId: string) => void;
   onPlaceUpdate?: (updatedPlace: Place) => void;
 }
+
 const categoryIcons = {
   yöpyminen: FaCampground,
   patikointi: FaHiking,
@@ -120,15 +120,6 @@ const ViewModal = ({
     }
   };
 
-  if (!isOpen || !place) return null;
-
-  const handleDelete = async () => {
-    if (place._id) {
-      await onDelete(place._id);
-      onClose();
-    }
-  };
-
   const renderStars = (rating: number, isInteractive = false) => {
     return (
       <div className="flex">
@@ -140,6 +131,7 @@ const ViewModal = ({
             }
             className={`${isInteractive ? "cursor-pointer" : ""}`}
             disabled={!isInteractive}
+            type="button"
           >
             {index < (isInteractive ? newReview.rating : rating) ? (
               <AiFillStar className="text-yellow-400 text-xl" />
@@ -152,36 +144,53 @@ const ViewModal = ({
     );
   };
 
+  if (!isOpen || !place) return null;
+
   const categories = Array.isArray(place.category) ? place.category : [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
-      <div className="relative z-50 w-full max-w-4xl bg-gray-800 rounded-lg shadow-xl m-4">
-        {/* Header Image Section */}
-        <div className="relative h-64 w-full">
-          <Image
-            src={image || "/placeholder-image.jpg"}
-            alt={place.name}
-            className="w-full h-full object-cover rounded-t-lg"
-            width={800}
-            height={400}
-          />
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 bg-gray-800/80 p-2 rounded-full text-white hover:bg-gray-700"
-          >
-            ✕
-          </button>
+      <div className="relative z-50 w-full max-w-4xl bg-gray-800 rounded-lg shadow-xl m-4 flex flex-col max-h-[90vh]">
+        {/* Header Section */}
+        <div className="relative flex-shrink-0">
+          <div className="relative h-64 w-full">
+            <Image
+              // src={place.image || "/placeholder-image.jpg"}
+              src={image || "/placeholder-image.jpg"}
+              alt={place.name}
+              className="w-full h-full object-cover rounded-t-lg"
+              width={800}
+              height={400}
+            />
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 bg-gray-800/80 p-2 rounded-full text-white hover:bg-gray-700"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
-        {/* Content Section */}
-        <div className="p-6">
+        {/* Scrollable Content */}
+        <div
+          className="flex-1 overflow-y-auto p-6 
+          [&::-webkit-scrollbar]:w-2 
+          [&::-webkit-scrollbar-track]:bg-gray-800 
+          [&::-webkit-scrollbar-thumb]:bg-blue-500
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          [&::-webkit-scrollbar-thumb]:border-2
+          [&::-webkit-scrollbar-thumb]:border-transparent
+          [&::-webkit-scrollbar-thumb]:bg-clip-padding
+          [&::-webkit-scrollbar-thumb]:hover:bg-blue-400"
+        >
+          {/* Rest of the content remains the same */}
+
           {/* Title and Categories */}
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-white mb-4">{place.name}</h2>
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2">
               {categories.map((category, index) => {
                 const IconComponent =
                   categoryIcons[category as keyof typeof categoryIcons];
@@ -209,9 +218,15 @@ const ViewModal = ({
                 {place.position[1].toFixed(4)}
               </span>
             </div>
-            <div className="flex items-center gap-2 text-gray-300">
-              <BiCompass className="text-blue-400" />
-              <span>Osoite: {place.address || "Ei määritetty"}</span>
+          </div>
+
+          <div className="mb-6">
+            <div className="flex items-center gap-2 text-gray-300 mb-2">
+              <FaMapMarkerAlt className="text-red-500" />
+              <span>
+                Osoite: {place.address} - {place.zip} - {place.country} -{" "}
+                {place.city}
+              </span>
             </div>
           </div>
 
@@ -223,14 +238,15 @@ const ViewModal = ({
             </p>
           </div>
 
+          {/* Reviews Section */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-white">Reviews</h3>
+              <h3 className="text-lg font-semibold text-white">Arvostelut</h3>
               <button
                 onClick={() => setIsWritingReview(!isWritingReview)}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
-                Write a Review
+                Kirjoita arvostelu
               </button>
             </div>
 
@@ -243,7 +259,7 @@ const ViewModal = ({
                 </div>
                 <div className="mb-4">
                   <label className="block text-gray-300 mb-2">
-                    Your Review
+                    Arvostelusi
                   </label>
                   <textarea
                     value={newReview.comment}
@@ -252,7 +268,7 @@ const ViewModal = ({
                     }
                     className="w-full px-3 py-2 bg-gray-600 text-white rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     rows={4}
-                    placeholder="Share your experience..."
+                    placeholder="Jaa mietteesi paikasta..."
                   />
                 </div>
                 <div className="flex justify-end gap-2">
@@ -260,14 +276,14 @@ const ViewModal = ({
                     onClick={() => setIsWritingReview(false)}
                     className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors"
                   >
-                    Cancel
+                    Peruuta
                   </button>
                   <button
                     onClick={handleSubmitReview}
                     disabled={isSubmitting || !newReview.comment.trim()}
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:bg-blue-400"
                   >
-                    {isSubmitting ? "Submitting..." : "Submit Review"}
+                    {isSubmitting ? "Lähettää..." : "Kirjoita arvostelu"}
                   </button>
                 </div>
               </div>
@@ -279,7 +295,7 @@ const ViewModal = ({
                 {renderStars(localPlace?.averageRating || 0)}
                 <span className="text-gray-300">
                   {localPlace?.averageRating?.toFixed(1)} - ({reviews.length}{" "}
-                  reviews)
+                  arvostelua)
                 </span>
               </div>
 
@@ -299,17 +315,19 @@ const ViewModal = ({
               ))}
             </div>
           </div>
+        </div>
 
-          {/* Action Buttons */}
+        {/* Footer Section */}
+        <div className="border-t border-gray-700 p-4 flex-shrink-0">
           <div className="flex justify-end gap-4">
             <button
               onClick={onClose}
               className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors"
             >
-              Peruuta
+              Sulje
             </button>
             <button
-              onClick={handleDelete}
+              onClick={() => place._id && onDelete(place._id)}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center gap-2"
             >
               <FaTrash />

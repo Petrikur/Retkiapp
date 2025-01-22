@@ -10,7 +10,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await connectToDatabase();
 
     await Review.deleteMany({ placeId: id });
