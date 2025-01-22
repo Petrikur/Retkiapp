@@ -3,7 +3,7 @@ import connectToDatabase from "@/app/lib/mongodb";
 import Place from "@/app/models/Place";
 // import Review from "@/app/models/Review";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     await connectToDatabase();
     // Use aggregation to get places with their average ratings

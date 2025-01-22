@@ -16,7 +16,12 @@ export interface PlaceFormData {
   description: string;
   category: string[];
   position: [number, number];
-  image: File | null;
+  image: string;
+  country: string;
+  address: string;
+  city: string;
+  zip: number;
+  averageRating: number;
 }
 
 export interface Review {

@@ -12,6 +12,7 @@ export async function getPlaces() {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createPlace(data: any) {
   try {
     const place = new Place({

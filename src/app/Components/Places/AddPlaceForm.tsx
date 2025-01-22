@@ -1,3 +1,4 @@
+import { PlaceFormData } from "@/app/types";
 import React, { useRef, useState, useEffect } from "react";
 import {
   FaCampground,
@@ -59,17 +60,6 @@ interface AddPlaceFormProps {
   onClose: () => void;
 }
 
-export interface PlaceFormData {
-  name: string;
-  description: string;
-  category: string[];
-  position: [number, number];
-  city: string;
-  zip: number;
-  country: string;
-  address: string;
-}
-
 const AddPlaceForm = ({ position, onSubmit, onClose }: AddPlaceFormProps) => {
   const [formData, setFormData] = useState<PlaceFormData>({
     name: "",
@@ -77,9 +67,11 @@ const AddPlaceForm = ({ position, onSubmit, onClose }: AddPlaceFormProps) => {
     category: [],
     position: position,
     city: "",
-    zip: "",
+    zip: 0,
     country: "",
     address: "",
+    image: "",
+    averageRating: 0,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -8,7 +8,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
-import { BiCompass } from "react-icons/bi";
+// import { BiCompass } from "react-icons/bi";
 import Image from "next/image";
 import { Place } from "@/app/types";
 
@@ -52,15 +52,21 @@ const ViewModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localPlace, setLocalPlace] = useState<Place | null>(place);
 
-  useEffect(() => {
-    setLocalPlace(place);
-    if (place?._id) {
-      fetchReviews();
-      fetchUpdatedPlace();
+  const fetchReviews = React.useCallback(async () => {
+    if (!place?._id) return;
+
+    try {
+      const response = await fetch(`/api/reviews?placeId=${place._id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setReviews(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch reviews:", error);
     }
   }, [place?._id]);
 
-  const fetchUpdatedPlace = async () => {
+  const fetchUpdatedPlace = React.useCallback(async () => {
     if (!place?._id) return;
 
     try {
@@ -75,21 +81,15 @@ const ViewModal = ({
     } catch (error) {
       console.error("Failed to fetch updated place:", error);
     }
-  };
+  }, [place?._id, onPlaceUpdate]);
 
-  const fetchReviews = async () => {
-    if (!place?._id) return;
-
-    try {
-      const response = await fetch(`/api/reviews?placeId=${place._id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setReviews(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch reviews:", error);
+  useEffect(() => {
+    setLocalPlace(place);
+    if (place?._id) {
+      fetchReviews();
+      fetchUpdatedPlace();
     }
-  };
+  }, [place, fetchReviews, fetchUpdatedPlace]);
 
   const handleSubmitReview = async () => {
     if (!place?._id || !newReview.comment.trim()) return;
