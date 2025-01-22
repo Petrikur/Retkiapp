@@ -4,41 +4,17 @@ import Place from "@/app/models/Place";
 import Review from "@/app/models/Review";
 import mongoose from "mongoose";
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await connectToDatabase();
-    await Review.deleteMany({ placeId: params.id });
-    const deletedPlace = await Place.findByIdAndDelete(params.id);
-
-    if (!deletedPlace) {
-      return NextResponse.json({ error: "Place not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      message: "Place and associated reviews deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error in DELETE handler:", error);
-    return NextResponse.json(
-      { error: "Failed to delete place" },
-      { status: 500 }
-    );
-  }
-}
-
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const id = (await params).id;
     await connectToDatabase();
     const place = await Place.aggregate([
       {
         $match: {
-          _id: new mongoose.Types.ObjectId(params.id),
+          _id: new mongoose.Types.ObjectId(id),
         },
       },
       {
@@ -77,6 +53,32 @@ export async function GET(
     console.error("Error in GET handler:", error);
     return NextResponse.json(
       { error: "Failed to fetch place" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const id = (await params).id;
+    await connectToDatabase();
+    await Review.deleteMany({ placeId: id });
+    const deletedPlace = await Place.findByIdAndDelete(id);
+
+    if (!deletedPlace) {
+      return NextResponse.json({ error: "Place not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      message: "Place and associated reviews deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error in DELETE handler:", error);
+    return NextResponse.json(
+      { error: "Failed to delete place" },
       { status: 500 }
     );
   }

@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import Map from "./Components/Map/Map";
 import SearchResult from "./Components/Search/Searchresult";
 import AddPlaceModal from "./Components/Modal/AddPlaceModal";
 import ViewPlaceModal from "./Components/Modal/ViewPlaceModal";
 import SearchBar from "./Components/Search/SearchBar";
 import "leaflet/dist/leaflet.css";
 import { Place } from "./types";
+import dynamic from "next/dynamic";
 
 export default function Home() {
   const [places, setPlaces] = useState<Place[]>([]);
@@ -18,6 +18,11 @@ export default function Home() {
   const [newPlacePosition, setNewPlacePosition] = useState<
     [number, number] | null
   >(null);
+
+  const Map = dynamic(() => import("./Components/Map/Map"), {
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-gray-700" />,
+  });
 
   useEffect(() => {
     const fetchPlaces = async () => {

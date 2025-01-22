@@ -1,9 +1,14 @@
+/* eslint-disable no-var */
 import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   throw new Error("Please define the MONGODB_URI environment variable");
+}
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  var mongoose: any; // This must be a `var` and not a `let / const`
 }
 
 let cached = global.mongoose;
@@ -19,10 +24,8 @@ async function connectToDatabase() {
 
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(MONGODB_URI, {
+      .connect(MONGODB_URI!, {
         bufferCommands: false,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
       })
       .then((mongoose) => {
         console.log("Connected to MongoDB");

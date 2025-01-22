@@ -49,7 +49,6 @@ export async function POST(request: Request) {
     await connectToDatabase();
 
     const formData = await request.json();
-    console.log(formData);
     const {
       name,
       description,
@@ -94,7 +93,6 @@ export async function POST(request: Request) {
     };
 
     const place = await Place.create(data);
-    console.log("place", place);
     return NextResponse.json(place);
   } catch (error) {
     console.error("Error in POST handler:", error);
