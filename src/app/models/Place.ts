@@ -9,6 +9,14 @@ const placeSchema = new Schema({
   },
   position: { type: [Number], required: true },
   image: { type: String },
+  averageRating: {
+    type: Number,
+    default: 0,
+  },
+  reviewCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Place = models.Place || model("Place", placeSchema);
