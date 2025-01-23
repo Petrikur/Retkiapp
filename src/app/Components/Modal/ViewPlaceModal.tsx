@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   FaCampground,
   FaHiking,
@@ -8,7 +8,6 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
-// import { BiCompass } from "react-icons/bi";
 import Image from "next/image";
 import { Place } from "@/app/types";
 
@@ -51,6 +50,9 @@ const ViewModal = ({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localPlace, setLocalPlace] = useState<Place | null>(place);
+  const [lastReviewSubmitTime, setLastReviewSubmitTime] = useState<number>(0);
+  const reviewSectionRef = useRef<HTMLDivElement>(null);
+  const reviewFormRef = useRef<HTMLDivElement>(null);
 
   const fetchReviews = React.useCallback(async () => {
     if (!place?._id) return;
@@ -91,8 +93,29 @@ const ViewModal = ({
     }
   }, [place, fetchReviews, fetchUpdatedPlace]);
 
+  // Smooth scroll
+  useEffect(() => {
+    if (isWritingReview && reviewSectionRef.current && reviewFormRef.current) {
+      reviewSectionRef.current.scrollIntoView({ behavior: "smooth" });
+      const timer = setTimeout(() => {
+        reviewFormRef.current?.focus();
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isWritingReview]);
+
   const handleSubmitReview = async () => {
     if (!place?._id || !newReview.comment.trim()) return;
+
+    // Anti-spam: Prevent submitting reviews too frequently
+    const currentTime = Date.now();
+    const timeSinceLastSubmit = currentTime - lastReviewSubmitTime;
+
+    if (timeSinceLastSubmit < 6000) {
+      alert("Please wait before submitting another review.");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -112,6 +135,7 @@ const ViewModal = ({
         await Promise.all([fetchReviews(), fetchUpdatedPlace()]);
         setIsWritingReview(false);
         setNewReview({ rating: 5, comment: "" });
+        setLastReviewSubmitTime(currentTime);
       }
     } catch (error) {
       console.error("Failed to submit review:", error);
@@ -185,8 +209,6 @@ const ViewModal = ({
           [&::-webkit-scrollbar-thumb]:bg-clip-padding
           [&::-webkit-scrollbar-thumb]:hover:bg-blue-400"
         >
-          {/* Rest of the content remains the same */}
-
           {/* Title and Categories */}
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-white mb-4">{place.name}</h2>
@@ -239,20 +261,25 @@ const ViewModal = ({
           </div>
 
           {/* Reviews Section */}
-          <div className="mb-6">
+          <div ref={reviewSectionRef} className="mb-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-white">Arvostelut</h3>
-              <button
-                onClick={() => setIsWritingReview(!isWritingReview)}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-              >
-                Kirjoita arvostelu
-              </button>
+              {!isWritingReview && (
+                <button
+                  onClick={() => setIsWritingReview(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  Kirjoita Arvostelu
+                </button>
+              )}
             </div>
 
-            {/* New Review Form */}
             {isWritingReview && (
-              <div className="bg-gray-700 p-4 rounded-lg mb-4">
+              <div
+                ref={reviewFormRef}
+                tabIndex={-1}
+                className="bg-gray-700 p-4 rounded-lg mb-4 transition-all duration-300 ease-in-out transform origin-top"
+              >
                 <div className="mb-4">
                   <label className="block text-gray-300 mb-2">Rating</label>
                   {renderStars(newReview.rating, true)}
@@ -283,7 +310,7 @@ const ViewModal = ({
                     disabled={isSubmitting || !newReview.comment.trim()}
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:bg-blue-400"
                   >
-                    {isSubmitting ? "Lähettää..." : "Kirjoita arvostelu"}
+                    {isSubmitting ? "Lähettää..." : "Jaa"}
                   </button>
                 </div>
               </div>
