@@ -7,8 +7,11 @@ import SearchBar from "./Components/Search/SearchBar";
 import "leaflet/dist/leaflet.css";
 import { Place } from "./types";
 import dynamic from "next/dynamic";
+import { withAuth } from "./lib/withAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 
-export default function Home() {
+function Home() {
+  const { logout } = useAuth();
   const [places, setPlaces] = useState<Place[]>([]);
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -105,42 +108,61 @@ export default function Home() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
-    <div className="flex h-screen">
-      <div className="w-1/3 p-4 overflow-y-auto bg-gray-800">
-        <h1 className="text-2xl font-bold mb-4 text-white">Retki app</h1>
+    <div className="flex flex-col h-screen">
+      <div className="flex flex-grow">
+        <div className="w-1/3 p-4 overflow-y-auto bg-gray-800">
+          <div className="flex justify-between items-center  p-4">
+            <h1 className="text-2xl font-bold text-white">Retki app</h1>
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className=" text-white py-1 px-4 border rounded hover:bg-red-700 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
 
-        <SearchBar
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-        />
+          <SearchBar
+            searchQuery={searchQuery}
+            onSearchChange={handleSearchChange}
+          />
 
-        <div className="space-y-4 ">
-          {filteredPlaces.map((place) => (
-            <SearchResult
-              key={place._id}
-              place={place}
-              onClick={() => {
-                setSelectedPlace(place);
-                setIsViewModalOpen(true);
-              }}
-            />
-          ))}
+          <div className="space-y-4 ">
+            {filteredPlaces.map((place) => (
+              <SearchResult
+                key={place._id}
+                place={place}
+                onClick={() => {
+                  setSelectedPlace(place);
+                  setIsViewModalOpen(true);
+                }}
+              />
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="w-2/3 relative">
-        <Map
-          places={filteredPlaces}
-          onMapClick={(lat, lng) => {
-            setNewPlacePosition([lat, lng]);
-            setIsAddModalOpen(true);
-          }}
-          onMarkerClick={(place) => {
-            setSelectedPlace(place);
-            setIsViewModalOpen(true);
-          }}
-        />
+        <div className="w-2/3 relative">
+          <Map
+            places={filteredPlaces}
+            onMapClick={(lat, lng) => {
+              setNewPlacePosition([lat, lng]);
+              setIsAddModalOpen(true);
+            }}
+            onMarkerClick={(place) => {
+              setSelectedPlace(place);
+              setIsViewModalOpen(true);
+            }}
+          />
+        </div>
       </div>
 
       <ViewPlaceModal
@@ -162,3 +184,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default withAuth(Home);

@@ -3,6 +3,14 @@ import connectToDatabase from "@/app/lib/mongodb";
 import Place from "@/app/models/Place";
 // import Review from "@/app/models/Review";
 
+// In protected API routes:
+// import { initializeAdmin } from "@app/lib/firebase-admin";
+
+// export async function GET(req: Request) {
+//   initializeAdmin();
+//   // protected route logic
+// }
+
 export async function GET() {
   try {
     await connectToDatabase();
