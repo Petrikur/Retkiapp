@@ -204,9 +204,9 @@ export function useAuth() {
     }
   };
 
-  const logout = () => {
-    setRole(null); // Clear the role when the user logs out
-    return signOut(auth);
+  const logout = async () => {
+    setRole(null);
+    await signOut(auth);
   };
 
   const resetPassword = async (email: string) => {
