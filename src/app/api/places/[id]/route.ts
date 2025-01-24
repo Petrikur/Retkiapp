@@ -3,6 +3,7 @@ import connectToDatabase from "@/app/lib/mongodb";
 import Place from "@/app/models/Place";
 import Review from "@/app/models/Review";
 import mongoose from "mongoose";
+import { getAuth } from "firebase-admin/auth";
 
 export async function GET(
   req: NextRequest,
@@ -57,17 +58,33 @@ export async function GET(
     );
   }
 }
-
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const id = (await params).id;
+
+    // Validate the Authorization header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Verify the ID token
+    const idToken = authHeader.split("Bearer ")[1];
+    const decodedToken = await getAuth().verifyIdToken(idToken);
+
+    // Check if the user has an admin role
+    if (decodedToken.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     await connectToDatabase();
     await Review.deleteMany({ placeId: id });
-    const deletedPlace = await Place.findByIdAndDelete(id);
 
+    // Delete the place
+    const deletedPlace = await Place.findByIdAndDelete(id);
     if (!deletedPlace) {
       return NextResponse.json({ error: "Place not found" }, { status: 404 });
     }

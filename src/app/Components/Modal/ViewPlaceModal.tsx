@@ -12,6 +12,7 @@ import Image from "next/image";
 import { Place } from "@/app/types";
 
 import image from "@/app/images/laavu2.jpg";
+import { useAuth } from "@/app/hooks/useAuth";
 
 interface Review {
   _id: string;
@@ -53,6 +54,7 @@ const ViewModal = ({
   const [lastReviewSubmitTime, setLastReviewSubmitTime] = useState<number>(0);
   const reviewSectionRef = useRef<HTMLDivElement>(null);
   const reviewFormRef = useRef<HTMLDivElement>(null);
+  const { role } = useAuth();
 
   const fetchReviews = React.useCallback(async () => {
     if (!place?._id) return;
@@ -353,13 +355,15 @@ const ViewModal = ({
             >
               Sulje
             </button>
-            <button
-              onClick={() => place._id && onDelete(place._id)}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center gap-2"
-            >
-              <FaTrash />
-              Poista
-            </button>
+            {role === "admin" && (
+              <button
+                onClick={() => place._id && onDelete(place._id)}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center gap-2"
+              >
+                <FaTrash />
+                Poista
+              </button>
+            )}
           </div>
         </div>
       </div>

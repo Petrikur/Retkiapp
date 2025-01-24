@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/app/lib/mongodb";
 import Place from "@/app/models/Place";
+import { getAuth } from "firebase-admin/auth";
 // import Review from "@/app/models/Review";
 
 // In protected API routes:
@@ -54,8 +55,28 @@ export async function GET() {
 }
 export async function POST(request: Request) {
   try {
-    await connectToDatabase();
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
+    }
 
+    const idToken = authHeader.split("Bearer ")[1];
+    const decodedToken = await getAuth().verifyIdToken(idToken);
+
+    // Check for the role claim
+    if (decodedToken.role !== "admin") {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+      });
+    }
+
+    if (decodedToken.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    await connectToDatabase();
     const formData = await request.json();
     const {
       name,
@@ -101,7 +122,7 @@ export async function POST(request: Request) {
     };
 
     const place = await Place.create(data);
-    return NextResponse.json(place);
+    return NextResponse.json(place, { status: 201 });
   } catch (error) {
     console.error("Error in POST handler:", error);
     return NextResponse.json(

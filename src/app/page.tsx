@@ -11,7 +11,7 @@ import { withAuth } from "./lib/withAuth";
 import { useAuth } from "@/app/hooks/useAuth";
 
 function Home() {
-  const { logout } = useAuth();
+  const { logout, getIdToken } = useAuth();
   const [places, setPlaces] = useState<Place[]>([]);
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -42,18 +42,30 @@ function Home() {
 
     fetchPlaces();
   }, []);
-
   const handleAddPlace = async (placeData: Place) => {
     try {
+      const idToken = await getIdToken();
+      if (!idToken) {
+        throw new Error("User is not authenticated");
+      }
+
+      if (!placeData.description) {
+        throw new Error("Description is required");
+      }
+
       const response = await fetch("/api/places", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify(placeData),
       });
 
-      if (!response.ok) throw new Error("Failed to create place");
+      if (!response.ok) {
+        const { error } = await response.json();
+        throw new Error(error || "Failed to create place");
+      }
 
       const newPlace = await response.json();
       setPlaces((prevPlaces) => [...prevPlaces, newPlace]);
@@ -68,8 +80,15 @@ function Home() {
 
   const handleDeletePlace = async (placeId: string) => {
     try {
+      const idToken = await getIdToken();
+      if (!idToken) {
+        throw new Error("User is not authenticated");
+      }
       const response = await fetch(`/api/places/${placeId}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
       });
 
       if (!response.ok) {
@@ -116,16 +135,27 @@ function Home() {
     }
   };
 
+  const { role, user } = useAuth();
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex flex-grow">
         <div className="w-1/3 p-4 overflow-y-auto bg-gray-800">
-          <div className="flex justify-between items-center  p-4">
-            <h1 className="text-2xl font-bold text-white">Retki app</h1>
+          <div className="flex justify-between items-center p-4">
+            <div>
+              <h1 className="text-2xl font-bold text-white">Retki app</h1>
+              {/* Conditional text based on user role */}
+              {user ? (
+                <small className="text-sm text-white">
+                  Logged in as: {user?.email}{" "}
+                </small>
+              ) : null}
+            </div>
+
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className=" text-white py-1 px-4 border rounded hover:bg-red-700 transition-colors"
+              className="text-white py-1 px-4 border rounded hover:bg-red-700 transition-colors"
             >
               Logout
             </button>
@@ -154,8 +184,13 @@ function Home() {
           <Map
             places={filteredPlaces}
             onMapClick={(lat, lng) => {
-              setNewPlacePosition([lat, lng]);
-              setIsAddModalOpen(true);
+              // Only allow admin users to click and add a place
+              if (role === "admin") {
+                setNewPlacePosition([lat, lng]);
+                setIsAddModalOpen(true);
+              } else {
+                return;
+              }
             }}
             onMarkerClick={(place) => {
               setSelectedPlace(place);
