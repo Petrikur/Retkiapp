@@ -1,6 +1,6 @@
 import { Schema, model, models } from "mongoose";
 
-const User = new Schema({
+const userSchema = new Schema({
   firebaseId: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -8,6 +8,6 @@ const User = new Schema({
   role: { type: String, default: "user" },
 });
 
-const Place = models.Place || model("User", User);
+const User = models.Place || model("User", userSchema);
 
-export default Place;
+export default User;
