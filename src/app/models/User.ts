@@ -8,6 +8,6 @@ const userSchema = new Schema({
   role: { type: String, default: "user" },
 });
 
-const User = models.Place || model("User", userSchema);
+const User = models.User || model("User", userSchema);
 
 export default User;
