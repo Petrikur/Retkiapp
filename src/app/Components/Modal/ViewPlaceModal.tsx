@@ -7,12 +7,12 @@ import {
   FaMapMarkerAlt,
   FaTrash,
 } from "react-icons/fa";
-import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import Image from "next/image";
 import { Place } from "@/app/types";
 
 import image from "@/app/images/laavu2.jpg";
 import { useAuth } from "@/app/hooks/useAuth";
+import RenderStars from "../utils/RenderStars";
 
 interface Review {
   _id: string;
@@ -146,30 +146,6 @@ const ViewModal = ({
     }
   };
 
-  const renderStars = (rating: number, isInteractive = false) => {
-    return (
-      <div className="flex">
-        {[...Array(5)].map((_, index) => (
-          <button
-            key={index}
-            onClick={() =>
-              isInteractive && setNewReview({ ...newReview, rating: index + 1 })
-            }
-            className={`${isInteractive ? "cursor-pointer" : ""}`}
-            disabled={!isInteractive}
-            type="button"
-          >
-            {index < (isInteractive ? newReview.rating : rating) ? (
-              <AiFillStar className="text-yellow-400 text-xl" />
-            ) : (
-              <AiOutlineStar className="text-yellow-400 text-xl" />
-            )}
-          </button>
-        ))}
-      </div>
-    );
-  };
-
   if (!isOpen || !place) return null;
 
   const categories = Array.isArray(place.category) ? place.category : [];
@@ -284,7 +260,15 @@ const ViewModal = ({
               >
                 <div className="mb-4">
                   <label className="block text-gray-300 mb-2">Rating</label>
-                  {renderStars(newReview.rating, true)}
+                  {
+                    <RenderStars
+                      rating={newReview.rating}
+                      isInteractive={true}
+                      onRatingChange={(newRating) =>
+                        setNewReview({ ...newReview, rating: newRating })
+                      }
+                    />
+                  }
                 </div>
                 <div className="mb-4">
                   <label className="block text-gray-300 mb-2">
@@ -321,7 +305,7 @@ const ViewModal = ({
             {/* Reviews List */}
             <div className="bg-gray-700 p-4 rounded-lg">
               <div className="flex items-center gap-4 mb-4">
-                {renderStars(localPlace?.averageRating || 0)}
+                <RenderStars rating={localPlace?.averageRating || 0} />
                 <span className="text-gray-300">
                   {localPlace?.averageRating?.toFixed(1)} - ({reviews.length}{" "}
                   arvostelua)
@@ -334,7 +318,7 @@ const ViewModal = ({
                   className="border-t border-gray-600 pt-4 mt-4"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    {renderStars(review.rating)}
+                    <RenderStars rating={review.rating} />
                     <span className="text-gray-400 text-sm">
                       {new Date(review.createdAt).toLocaleDateString()}
                     </span>

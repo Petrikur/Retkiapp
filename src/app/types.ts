@@ -9,6 +9,7 @@ export interface Place {
   country: string;
   address: string;
   zip: number;
+  reviewCount: number;
 }
 
 export interface PlaceFormData {
@@ -22,6 +23,7 @@ export interface PlaceFormData {
   city: string;
   zip: number;
   averageRating: number;
+  reviewCount: number;
 }
 
 export interface Review {
