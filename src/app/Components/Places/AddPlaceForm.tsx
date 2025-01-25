@@ -72,6 +72,7 @@ const AddPlaceForm = ({ position, onSubmit, onClose }: AddPlaceFormProps) => {
     address: "",
     image: "",
     averageRating: 0,
+    reviewCount: 0,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
